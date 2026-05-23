@@ -12,8 +12,11 @@ Make the project public in Comet UI: Settings → Project → Visibility → Pub
 """
 
 import os
-import json
 import pathlib
+import tempfile
+
+# Suppress matplotlib/fontconfig cache warnings
+os.environ.setdefault("MPLCONFIGDIR", tempfile.mkdtemp())
 
 # ── Comet ML ──────────────────────────────────────────────────────────────────
 from comet_ml import Experiment, Artifact
@@ -113,10 +116,10 @@ def main():
 
     print("🚀  Starting Comet ML experiment: EPRAF-pilot-v1")
 
+    # workspace is omitted — Comet auto-uses the account tied to the API key
     experiment = Experiment(
         api_key=api_key,
         project_name="epraf",
-        workspace="reddy7356",       # ← your Comet username
         auto_metric_logging=False,
         auto_param_logging=False,
         log_code=False,
@@ -188,57 +191,63 @@ def main():
 
     # ── 7. Code artifact ─────────────────────────────────────────────────────
     print("  Creating code artifact...")
-    artifact = Artifact(
-        name="epraf-code-v1.0",
-        artifact_type="code",
-        metadata={
-            "version":     "1.0",
-            "github":      "https://github.com/reddy7356/EPRAF",
-            "paper":       "EPRAF: A Proposed Hallucination-Aware Evaluation Framework "
-                           "for Electrophysiology Anesthesia RAG",
-            "submitted_to":"NEJM AI — Datasets, Benchmarks, and Protocols",
-            "license":     "MIT",
-        },
-    )
-
-    for py_file in sorted(CODE_DIR.glob("*.py")):
-        artifact.add(str(py_file), logical_path=f"code/{py_file.name}")
-
-    req_file = CODE_DIR / "requirements.txt"
-    if req_file.exists():
-        artifact.add(str(req_file), logical_path="code/requirements.txt")
-
-    experiment.log_artifact(artifact)
-    print("    ✓ Code artifact logged")
+    try:
+        artifact = Artifact(
+            name="epraf-code-v1.0",
+            artifact_type="code",
+            metadata={
+                "version":      "1.0",
+                "github":       "https://github.com/reddy7356/EPRAF",
+                "paper":        "EPRAF: A Proposed Hallucination-Aware Evaluation Framework "
+                                "for Electrophysiology Anesthesia RAG",
+                "submitted_to": "NEJM AI — Datasets, Benchmarks, and Protocols",
+                "license":      "MIT",
+            },
+        )
+        for py_file in sorted(CODE_DIR.glob("*.py")):
+            artifact.add(str(py_file), logical_path=f"code/{py_file.name}")
+        req_file = CODE_DIR / "requirements.txt"
+        if req_file.exists():
+            artifact.add(str(req_file), logical_path="code/requirements.txt")
+        experiment.log_artifact(artifact)
+        print("    ✓ Code artifact logged")
+    except Exception as e:
+        print(f"    ⚠  Code artifact skipped ({e})")
 
     # ── 8. Manuscript artifact ────────────────────────────────────────────────
     print("  Creating manuscript artifact...")
-    doc_artifact = Artifact(
-        name="epraf-manuscript-v1.0",
-        artifact_type="docs",
-        metadata={"format": "markdown", "target_journal": "NEJM AI"},
-    )
-    for doc_file in sorted(DOCS_DIR.iterdir()):
-        doc_artifact.add(str(doc_file), logical_path=f"docs/{doc_file.name}")
-    experiment.log_artifact(doc_artifact)
-    print("    ✓ Manuscript artifact logged")
+    try:
+        doc_artifact = Artifact(
+            name="epraf-manuscript-v1.0",
+            artifact_type="docs",
+            metadata={"format": "markdown", "target_journal": "NEJM AI"},
+        )
+        for doc_file in sorted(DOCS_DIR.iterdir()):
+            doc_artifact.add(str(doc_file), logical_path=f"docs/{doc_file.name}")
+        experiment.log_artifact(doc_artifact)
+        print("    ✓ Manuscript artifact logged")
+    except Exception as e:
+        print(f"    ⚠  Manuscript artifact skipped ({e})")
 
     # ── 9. Done ───────────────────────────────────────────────────────────────
     experiment.end()
 
-    url = experiment.url
+    url       = experiment.url or "(URL not available)"
+    workspace = experiment.workspace or "(check Comet dashboard)"
+    proj      = experiment.project_name or "epraf"
+
     print()
     print("=" * 60)
     print("✅  EPRAF experiment logged to Comet ML successfully!")
-    print(f"🔗  Experiment URL: {url}")
+    print(f"🔗  Experiment URL : {url}")
+    print(f"📁  Workspace      : {workspace}")
+    print(f"📂  Project URL    : https://www.comet.com/{workspace}/{proj}")
     print()
     print("NEXT STEPS:")
-    print("  1. Open the URL above and verify charts + metrics look correct")
+    print("  1. Open the Experiment URL above — verify charts & metrics")
     print("  2. Make the project public:")
-    print("     Comet UI → epraf project → Settings → Visibility → Public")
-    print("  3. Copy the project URL (not experiment URL) for the paper:")
-    print("     https://www.comet.com/reddy7356/epraf")
-    print("  4. Paste that URL into the manuscript Data Availability section")
+    print("     Comet UI → epraf project → ⚙ Settings → Visibility → Public")
+    print("  3. Use the Project URL above in the manuscript Data Availability section")
     print("=" * 60)
 
 
