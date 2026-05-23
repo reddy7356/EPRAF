@@ -1,7 +1,7 @@
 # EPRAF: Electrophysiology-Anesthesia RAG Assessment Framework
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXXX)
+[![Comet ML](https://img.shields.io/badge/Comet%20ML-Experiment-blue)](https://www.comet.com/reddy-devarapalli/epraf)
 
 > **Paper:** EPRAF: A Proposed Hallucination-Aware Evaluation Framework for Electrophysiology Anesthesia RAG  
 > **Submitted to:** NEJM AI — Datasets, Benchmarks, and Protocols  
@@ -107,7 +107,8 @@ If you use EPRAF in your research, please cite:
   journal = {NEJM AI},
   year    = {2026},
   note    = {Under review},
-  doi     = {10.5281/zenodo.XXXXXXX}
+  url     = {https://github.com/reddy7356/EPRAF},
+  howpublished = {Comet ML: https://www.comet.com/reddy-devarapalli/epraf}
 }
 ```
 
